@@ -1,0 +1,18 @@
+# Mi Box S configuration ADB
+media_player:
+  # Use the Python ADB implementation
+  - platform: androidtv
+    name: Android TV Main
+    host: !secret mi_box_host
+
+# Add dashboard for app remote contol for Mi Box
+lovelace:
+  mode: storage
+  # Add yaml dashboards
+  dashboards:
+    lovelace-yaml:
+      mode: yaml
+      title: Remote control
+      icon: mdi:script
+      show_in_sidebar: true
+      filename: lovelace_mi_box.yaml

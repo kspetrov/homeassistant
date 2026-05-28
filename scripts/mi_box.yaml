@@ -1,0 +1,102 @@
+box_home:
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      entity_id: media_player.android_tv_main
+      command: HOME
+box_power:
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      entity_id: media_player.android_tv_main
+      command: POWER
+box_sleep:
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      entity_id: media_player.android_tv_main
+      command: SLEEP
+box_up:
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      entity_id: media_player.android_tv_main
+      command: UP
+box_down:
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      entity_id: media_player.android_tv_main
+      command: DOWN
+box_left:
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      entity_id: media_player.android_tv_main
+      command: LEFT
+box_right:
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      entity_id: media_player.android_tv_main
+      command: RIGHT
+box_center:
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      entity_id: media_player.android_tv_main
+      command: CENTER
+box_back:
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      entity_id: media_player.android_tv_main
+      command: BACK
+box_menu:
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      entity_id: media_player.android_tv_main
+      command: MENU
+box_mute:
+  sequence:
+  - service: androidtv.adb_command
+    data:
+      entity_id: media_player.android_tv_main
+      command: MUTE
+kinopoisk:
+  sequence:
+  - service: androidtv.adb_command
+    entity_id: media_player.android_tv_main
+    data:
+      command: am start -a android.intent.action.VIEW -d -n ru.kinopoisk.tv/ru.kinopoisk.tv.presentation.splash.SplashActivity
+hdbox:
+  sequence:
+  - service: androidtv.adb_command
+    entity_id: media_player.AndroidBox
+    data:
+      command: am start -a android.intent.action.VIEW -d -n dkc.video.hdbox/com.dkc.fs.ui.activities.SplashActivity
+megogo:
+  sequence:
+  - service: androidtv.adb_command
+    entity_id: media_player.AndroidBox
+    data:
+      command: am start -a android.intent.action.VIEW -d -n com.megogo.application/net.megogo.tv.main.MainActivity
+ivi:
+  sequence:
+  - service: androidtv.adb_command
+    entity_id: media_player.AndroidBox
+    data:
+      command: am start -a android.intent.action.VIEW -d -n ru.ivi.client/ru.ivi.client.activity.MainActivity
+okko:
+  sequence:
+  - service: androidtv.adb_command
+    entity_id: media_player.AndroidBox
+    data:
+      command: am start -a android.intent.action.VIEW -d -n tv.okko.androidtv/ru.okko.tv.app.presentation.RootActivity
+wink:
+  sequence:
+  - service: androidtv.adb_command
+    entity_id: media_player.AndroidBox
+    data:
+      command: am start -a android.intent.action.VIEW -d -n ru.rt.video.app.tv/com.rostelecom.zabava.ui.splash.SplashActivity

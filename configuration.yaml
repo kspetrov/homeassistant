@@ -1,0 +1,118 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+#default_config:
+
+# Базовые системные интеграции
+config:
+frontend:
+hardware:
+logger:
+system_health:
+homeassistant_alerts:
+
+# Интеграции для автоматизации и помощника
+conversation:
+assist_pipeline:
+intent:
+
+# Важные сетевые службы (Оставьте для стабильной работы)
+dhcp:
+ssdp:
+zeroconf:
+usb:
+bluetooth:
+
+# Пользовательский интерфейс и данные
+history:
+logbook:
+map:
+energy:
+media_source:
+
+# Вспомогательные сущности
+input_button:
+input_datetime:
+input_number:
+input_select:
+input_text:
+person:
+schedule:
+timer:
+zone:
+tag:
+counter:
+
+# Если вам НЕ нужен My Home Assistant или Cloud, просто НЕ добавляйте их сюда!
+my:
+# cloud:
+
+
+recorder:
+  purge_keep_days: 7
+  auto_purge: true
+
+  include:
+    domains:
+      - input_boolean
+      
+      # Датчики только по маске (температура, влажность)
+      # light полностью исключен из истории
+    
+    entity_globs:
+      - sensor.*_temperature*
+      - sensor.*_humidity*
+      - binary_sensor.*_motion*
+      - binary_sensor.*_contact*
+
+homeassistant:
+  packages: !include_dir_named packages
+
+# Text to speech
+# tts:
+#   - platform: google_translate
+
+group: !include groups.yaml
+automation: !include_dir_merge_list automations/
+script: !include_dir_merge_named scripts/
+scene: !include scenes.yaml
+template: !include_dir_merge_list templates/
+input_boolean:
+  corridor:
+    name: Corridor
+    icon: mdi:light-switch
+  bathroom:
+    name: Bathroom
+    icon: mdi:light-switch
+  toilet:
+    name: Toilet
+    icon: mdi:light-switch
+  hall_gang_1:
+    name: Hall gang 1
+    icon: mdi:light-switch
+  hall_gang_2:
+    name: Hall gang 2
+    icon: mdi:light-switch
+  hall_power_socket:
+    name: Hall power socket
+    icon: mdi:light-switch
+  kitchen:
+    name: Kitchen
+    icon: mdi:light-switch
+  kitchen_backlight:
+    name: Kitchen backlight
+    icon: mdi:light-switch
+  kitchen_power_socket:
+    name: Kitchen power socket
+    icon: mdi:light-switch
+  small_corridor:
+    name: Small corridor
+    icon: mdi:light-switch
+  cabinet:
+    name: Cabinet
+    icon: mdi:light-switch
+  bedroom:
+    name: Bedroom
+    icon: mdi:light-switch
+  children_room:
+    name: Children room
+    icon: mdi:light-switch
+

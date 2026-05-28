@@ -1,0 +1,45 @@
+# automations for light in toilet when check motions
+- alias: Turn the light in toilet on/off when motion
+  description: 'Turn off when no motion more than "X" and open toilet door more than "Y"'
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.aqara_hub_m2
+      to: armed_home
+      id: motion_detected
+    - platform: state
+      entity_id: binary_sensor.motion_sensor_corridor
+      from: "on"
+      to: "off"
+      for: !secret no_motion_in_corridor_time
+      id: no_motion
+  action:
+    - choose:
+      - conditions:
+        - condition: and
+          conditions:
+            - condition: trigger
+              id: motion_detected
+            - condition: state
+              entity_id: light.toilet
+              state: "off"
+        sequence:
+          - service: light.turn_on
+            target:
+              entity_id: light.toilet
+      - conditions:
+        - condition: trigger
+          id: no_motion
+        - condition: state
+          entity_id: binary_sensor.contact_sensor_toilet
+          state: "on"
+          for: !secret toilet_door_open_time
+        sequence:
+          - service: light.turn_off
+            target:
+              entity_id: light.toilet
+          - service: alarm_control_panel.alarm_disarm
+            target:
+              entity_id: alarm_control_panel.aqara_hub_m2
+      default: []
+  mode: single
+

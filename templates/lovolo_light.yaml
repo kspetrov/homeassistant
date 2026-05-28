@@ -1,0 +1,88 @@
+# Light with livolo. Use https://kind3r.github.io/livolo-rf-codes/ for codes.
+# Has bug for toggle generation see https://community.home-assistant.io/t/broadlink-rm-pro-livolo-switches-rf-learning-woes/12432/158
+# Fix: replace 4 symbols in toggle commang - soCw to ssiw
+- light:
+  - name: Corridor
+    state: "{{ is_state('input_boolean.corridor', 'on') }}"
+    turn_on:
+      action: script.corridor_on
+    turn_off:
+      action: script.corridor_off
+  - name: Bathroom
+    state: "{{ is_state('input_boolean.bathroom', 'on') }}"
+    turn_on:
+      action: script.bathroom_on
+    turn_off:
+      action: script.bathroom_off
+  - name: Toilet
+    state: "{{ is_state('input_boolean.toilet', 'on') }}"
+    turn_on:
+      action: script.toilet_on
+    turn_off:
+      action: script.toilet_off
+  - name: Hall gang 1
+    state: "{{ is_state('input_boolean.hall_gang_1', 'on') }}"
+    turn_on:
+      action: script.hall_gang_1_on
+    turn_off:
+      action: script.hall_gang_1_off
+  - name: Hall gang 2
+    state: "{{ is_state('input_boolean.hall_gang_2', 'on') }}"
+    turn_on:
+      action: script.hall_gang_2_on
+    turn_off:
+      action: script.hall_gang_2_off
+  - name: Hall gang All
+    state: "{{ is_state('input_boolean.hall_gang_1', 'on') and is_state('input_boolean.hall_gang_2', 'on') }}"
+    turn_on:
+      action: script.hall_gang_all_on
+    turn_off:
+      action: script.hall_gang_all_off
+  - name: Hall power socket
+    state: "{{ is_state('input_boolean.hall_power_socket', 'on') }}"
+    turn_on:
+      action: script.hall_power_socket_on
+    turn_off:
+      action: script.hall_power_socket_off
+  - name: Kitchen
+    state: "{{ is_state('input_boolean.kitchen', 'on') }}"
+    turn_on:
+      action: script.kitchen_on
+    turn_off:
+      action: script.kitchen_off
+  - name: Kitchen backlight
+    state: "{{ is_state('input_boolean.kitchen_backlight', 'on') }}"
+    turn_on:
+      action: script.kitchen_backlight_on
+    turn_off:
+      action: script.kitchen_backlight_off
+  - name: Kitchen power socket
+    state: "{{ is_state('input_boolean.kitchen_power_socket', 'on') }}"
+    turn_on:
+      action: script.kitchen_power_socket_on
+    turn_off:
+      action: script.kitchen_power_socket_off
+  - name: Small corridor
+    state: "{{ is_state('input_boolean.small_corridor', 'on') }}"
+    turn_on:
+      action: script.small_corridor_on
+    turn_off:
+      action: script.small_corridor_off
+  - name: Cabinet
+    state: "{{ is_state('input_boolean.cabinet', 'on') }}"
+    turn_on:
+      action: script.cabinet_on
+    turn_off:
+      action: script.cabinet_off
+  - name: Bedroom
+    state: "{{ is_state('input_boolean.bedroom', 'on') }}"
+    turn_on:
+      action: script.bedroom_on
+    turn_off:
+      action: script.bedroom_off
+  - name: Children room
+    state: "{{ is_state('input_boolean.children_room', 'on') }}"
+    turn_on:
+      action: script.children_room_on
+    turn_off:
+      action: script.children_room_off

@@ -1,0 +1,683 @@
+- alias: Domofon on call interaction management 
+  mode: restart
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.smartintercom_line_detect
+      to: 'on'
+  condition:
+    - condition: state
+      entity_id: switch.smartintercom_accept_call
+      state: 'off'
+    - condition: state
+      entity_id: switch.smartintercom_reject_call
+      state: 'off'
+    - condition: state
+      entity_id: select.smartintercom_modes
+      state: 'Не активен'
+  action:
+    - service: telegram_bot.send_message
+      data:
+        message: "📞 Кто-то звонит в домофон. Что сделать?"
+        inline_keyboard:
+          - "✅ Открыть дверь:/open_door, ❌ Отклонить:/reject_call"
+      response_variable: sent_message
+    - wait_for_trigger:
+        - platform: event
+          event_type: telegram_callback
+          event_data:
+            message:
+              message_id: '{{ sent_message.chats[0].message_id }}'
+            chat_id: '{{ sent_message.chats[0].chat_id }}'
+      timeout: 60
+      continue_on_timeout: true
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ wait.trigger is not none }}"
+            - condition: state
+              entity_id: binary_sensor.smartintercom_line_detect
+              state: 'on'
+          sequence:
+            - choose:
+                - conditions:
+                    - "{{ wait.trigger.event.data.data == '/open_door' }}"
+                  sequence:
+                    - service: switch.turn_on
+                      target:
+                        entity_id: switch.smartintercom_accept_call
+                - conditions:
+                    - "{{ wait.trigger.event.data.data == '/reject_call' }}"
+                  sequence:
+                    - service: switch.turn_on
+                      target:
+                        entity_id: switch.smartintercom_reject_call
+            - service: telegram_bot.answer_callback_query
+              data:
+                callback_query_id: '{{ wait.trigger.event.data.id }}'
+                message: "✅ Готово!"
+        - conditions:
+            - condition: template
+              value_template: "{{ wait.trigger is not none }}"
+          sequence:
+            - service: telegram_bot.answer_callback_query
+              data:
+                callback_query_id: '{{ wait.trigger.event.data.id }}'
+                message: "Уже не актуально. Звонок завершен."
+                show_alert: true
+    - service: telegram_bot.delete_message
+      data:
+        chat_id: '{{ sent_message.chats[0].chat_id }}'
+        message_id: '{{ sent_message.chats[0].message_id }}'
+
+# - alias: Telegram (Domofon - menu)
+#   mode: restart
+#   trigger:
+#     - platform: event
+#       event_type: telegram_command
+#       event_data:
+#         command: "/start"
+#   action:
+#     - service: telegram_bot.send_message
+#       data:
+#         target: '{{ trigger.event.data.user_id }}'
+#         title: '{{"\U0001F5DD"}} Домофон'
+#         message: ''
+#         disable_notification: true
+#         inline_keyboard:
+#           - >-
+#             {% set mode = states("select.smartintercom_modes") %}
+#             {{"\U0001F7E2" if mode == "Не активен" else "\U0001F534"}} Не активен:/smartintercom_not_active,
+#             {{"\U0001F7E2" if mode == "Открывать всегда" else "\U0001F534"}} Открывать всегда:/smartintercom_open_always
+#           - >-
+#             {% if is_state("switch.smartintercom_accept_call", "on") %}
+#               {{"\U0001F7E2"}}
+#             {% else %}
+#               {{"\U0001F534"}}
+#             {% endif %} Открыть:/smartintercom_accept_call,
+#             {% set mode = states("select.smartintercom_modes") %}
+#             {{"\U0001F7E2" if mode == "Сброс вызова" else "\U0001F534"}} Сброс вызова:/smartintercom_reset
+#           - >-
+#             {{"\U0001F7E2" if is_state("switch.smartintercom_sound", "on") else "\U0001F534"}} Звук:/smartintercom_sound,
+#             {{"\U0001F7E2" if is_state("switch.smartintercom_mute", "on") else "\U0001F534"}} Mute:/smartintercom_mute
+#           - '{{"\U000021A9"}} Назад:/hallway'
+#           - '{{"\U0001F4DC"}} Главное меню:/menu'
+
+
+
+
+
+
+# - alias: "Telegram bot - Smart Intercom Control"
+#   description: "Обработка callback от умного домофона с улучшенным UI и логикой"
+#   triggers:
+#     - trigger: event
+#       event_type: telegram_callback
+#       event_data:
+#         command: "/smartintercom_not_active"
+#     - trigger: event
+#       event_type: telegram_callback
+#       event_data:
+#         command: "/edit_msg"
+#     - trigger: event
+#       event_type: telegram_callback
+#       event_data:
+#         command: "/do_nothing"
+#     - trigger: event
+#       event_type: telegram_callback
+#       event_data:
+#         command: "/remove_button"
+
+#   variables:
+#     # Безопасное экранирование для MarkdownV2
+#     safe_data: >-
+#       {{ trigger.event.data.data | replace('_', '\\_') | replace('-', '\\-') | replace('!', '\\!') | replace('.', '\\.') }}
+#     user_name: "{{ trigger.event.data.from_first }}"
+#     message_id: "{{ trigger.event.data.message.message_id }}"
+#     chat_id: "{{ trigger.event.data.chat_id }}"
+#     timestamp: "{{ now().strftime('%H:%M:%S') }}"
+
+#   actions:
+#     - choose:
+#         - conditions:
+#             - condition: template
+#               value_template: "{{ trigger.event.data.command == '/smartintercom_not_active' }}"
+#           sequence:
+#             - action: telegram_bot.edit_message
+#               data:
+#                 message_id: "{{ message_id }}"
+#                 chat_id: "{{ chat_id }}"
+#                 parse_mode: markdownv2
+#                 message: >-
+#                   🚪 *Домофон не активен* 🚪
+
+#                   👤 *Пользователь:* {{ user_name }}
+#                   ⏰ *Время:* {{ timestamp }}
+#                   📋 *Данные:* `{{ safe_data }}`
+
+#                   *Выберите действие:*
+#                 inline_keyboard:
+#                   - - { text: "✏️ Редактировать", callback_data: "/edit_msg" }
+#                     - { text: "❌ Отмена", callback_data: "/do_nothing" }
+#                   - - { text: "🗑️ Удалить кнопки", callback_data: "/remove_button" }
+#                   - - { text: "🔄 Статус домофона", callback_data: "/check_status" }
+
+#             - action: telegram_bot.answer_callback_query
+#               data:
+#                 callback_query_id: "{{ trigger.event.data.id }}"
+#                 text: "Обработка запроса домофона"
+#                 show_alert: false
+
+#         - conditions:
+#             - condition: template
+#               value_template: "{{ trigger.event.data.command == '/edit_msg' }}"
+#           sequence:
+#             - action: telegram_bot.edit_message
+#               data:
+#                 message_id: "{{ message_id }}"
+#                 chat_id: "{{ chat_id }}"
+#                 parse_mode: markdownv2
+#                 message: >-
+#                   ✅ *Сообщение отредактировано*
+
+#                   👤 *Пользователь:* {{ user_name }}
+#                   ⏰ *Время:* {{ timestamp }}
+#                   📝 *Статус:* Редактирование завершено
+
+#                   *Дополнительные действия:*
+#                 inline_keyboard:
+#                   - - { text: "↩️ Назад", callback_data: "/smartintercom_not_active" }
+#                     - { text: "🗑️ Удалить", callback_data: "/remove_button" }
+
+#             - action: telegram_bot.answer_callback_query
+#               data:
+#                 callback_query_id: "{{ trigger.event.data.id }}"
+#                 text: "Сообщение отредактировано"
+
+#         - conditions:
+#             - condition: template
+#               value_template: "{{ trigger.event.data.command == '/do_nothing' }}"
+#           sequence:
+#             - action: telegram_bot.answer_callback_query
+#               data:
+#                 callback_query_id: "{{ trigger.event.data.id }}"
+#                 text: "Действие отменено"
+#                 show_alert: true
+
+#         - conditions:
+#             - condition: template
+#               value_template: "{{ trigger.event.data.command == '/remove_button' }}"
+#           sequence:
+#             - action: telegram_bot.edit_message
+#               data:
+#                 message_id: "{{ message_id }}"
+#                 chat_id: "{{ chat_id }}"
+#                 parse_mode: markdownv2
+#                 message: >-
+#                   🚪 *Управление домофоном*
+
+#                   👤 *Пользователь:* {{ user_name }}
+#                   ⏰ *Время:* {{ timestamp }}
+#                   ✅ *Кнопки удалены*
+
+#             - action: telegram_bot.answer_callback_query
+#               data:
+#                 callback_query_id: "{{ trigger.event.data.id }}"
+#                 text: "Кнопки удалены"
+
+#       default:
+#         - action: telegram_bot.answer_callback_query
+#           data:
+#             callback_query_id: "{{ trigger.event.data.id }}"
+#             text: "Неизвестная команда"
+#             show_alert: true
+
+#   # Логирование в Home Assistant
+#   - action: persistent_notification.create
+#     data:
+#       title: "Telegram Callback Received"
+#       message: >-
+#         User: {{ user_name }}
+#         Command: {{ trigger.event.data.command }}
+#         Data: {{ trigger.event.data.data }}
+#         Time: {{ timestamp }}
+    # - choose:
+    #     - conditions:
+    #         - condition: template
+    #           value_template: '{{ trigger.event.data.command == "/start" }}'
+    #       sequence:
+    #         - service: telegram_bot.edit_message
+    #           data:
+    #             message_id: '{{ trigger.event.data.message.message_id }}'
+    #             chat_id: '{{ trigger.event.data.chat_id }}'
+    #             callback_query_id: '{{ trigger.event.data.id }}'
+    #             title: '{{"\U0001F5DD"}} Домофон'
+    #             message: ''
+    #         - service: telegram_bot.edit_replymarkup
+    #           data:
+    #             message_id: '{{ trigger.event.data.message.message_id }}'
+    #             chat_id: '{{ trigger.event.data.chat_id }}'
+    #             callback_query_id: '{{ trigger.event.data.id }}'
+    #             inline_keyboard: >
+    #               {% set mode = states("select.smartintercom_modes") %}
+    #               [
+    #                 [
+    #                   {
+    #                     "text": "{% if mode == 'Не активен' %}\U0001F7E2{% else %}\U0001F534{% endif %} Не активен",
+    #                     "callback_data": "/smartintercom_not_active"
+    #                   },
+    #                   {
+    #                     "text": "{% if mode == 'Открывать всегда' %}\U0001F7E2{% else %}\U0001F534{% endif %} Открывать всегда",
+    #                     "callback_data": "/smartintercom_open_always"
+    #                   }
+    #                 ],
+    #                 [
+    #                   {
+    #                     "text": "{% if is_state('switch.smartintercom_accept_call', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Открыть",
+    #                     "callback_data": "/smartintercom_accept_call"
+    #                   },
+    #                   {
+    #                     "text": "{% if mode == 'Сброс вызова' %}\U0001F7E2{% else %}\U0001F534{% endif %} Сброс вызова",
+    #                     "callback_data": "/smartintercom_reset"
+    #                   }
+    #                 ],
+    #                 [
+    #                   {
+    #                     "text": "{% if is_state('switch.smartintercom_sound', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Звук",
+    #                     "callback_data": "/smartintercom_sound"
+    #                   },
+    #                   {
+    #                     "text": "{% if is_state('switch.smartintercom_mute', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Mute",
+    #                     "callback_data": "/smartintercom_mute"
+    #                   }
+    #                 ],
+    #                 [
+    #                   {
+    #                     "text": "\U000021A9 Назад",
+    #                     "callback_data": "/hallway"
+    #                   }
+    #                 ],
+    #                 [
+    #                   {
+    #                     "text": "\U0001F4DC Главное меню",
+    #                     "callback_data": "/menu"
+    #                   }
+    #                 ]
+    #               ]
+
+        # - conditions:
+        #     - condition: template
+        #       value_template: '{{ trigger.event.data.command == "/smartintercom_not_active" }}'
+        #   sequence:
+        #     - service: select.select_option
+        #       target:
+        #         entity_id: select.smartintercom_modes
+        #       data:
+        #         option: Не активен
+        #     - delay:
+        #         milliseconds: 500
+        #     - service: telegram_bot.edit_replymarkup
+        #       data:
+        #         message_id: '{{ trigger.event.data.message.message_id }}'
+        #         chat_id: '{{ trigger.event.data.chat_id }}'
+        #         callback_query_id: '{{ trigger.event.data.id }}'
+        #         disable_notification: true
+        #         inline_keyboard: >
+        #           {% set mode = states("select.smartintercom_modes") %}
+        #           [
+        #             [
+        #               {
+        #                 "text": "{% if mode == 'Не активен' %}\U0001F7E2{% else %}\U0001F534{% endif %} Не активен",
+        #                 "callback_data": "/smartintercom_not_active"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Открывать всегда' %}\U0001F7E2{% else %}\U0001F534{% endif %} Открывать всегда",
+        #                 "callback_data": "/smartintercom_open_always"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_accept_call', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Открыть",
+        #                 "callback_data": "/smartintercom_accept_call"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Сброс вызова' %}\U0001F7E2{% else %}\U0001F534{% endif %} Сброс вызова",
+        #                 "callback_data": "/smartintercom_reset"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_sound', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Звук",
+        #                 "callback_data": "/smartintercom_sound"
+        #               },
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_mute', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Mute",
+        #                 "callback_data": "/smartintercom_mute"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U000021A9 Назад",
+        #                 "callback_data": "/hallway"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U0001F4DC Главное меню",
+        #                 "callback_data": "/menu"
+        #               }
+        #             ]
+        #           ]
+
+        # - conditions:
+        #     - condition: template
+        #       value_template: '{{ trigger.event.data.command == "/smartintercom_open_always" }}'
+        #   sequence:
+        #     - service: select.select_option
+        #       target:
+        #         entity_id: select.smartintercom_modes
+        #       data:
+        #         option: Открывать всегда
+        #     - delay:
+        #         milliseconds: 500
+        #     - service: telegram_bot.edit_replymarkup
+        #       data:
+        #         message_id: '{{ trigger.event.data.message.message_id }}'
+        #         chat_id: '{{ trigger.event.data.chat_id }}'
+        #         callback_query_id: '{{ trigger.event.data.id }}'
+        #         disable_notification: true
+        #         inline_keyboard: >
+        #           {% set mode = states("select.smartintercom_modes") %}
+        #           [
+        #             [
+        #               {
+        #                 "text": "{% if mode == 'Не активен' %}\U0001F7E2{% else %}\U0001F534{% endif %} Не активен",
+        #                 "callback_data": "/smartintercom_not_active"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Открывать всегда' %}\U0001F7E2{% else %}\U0001F534{% endif %} Открывать всегда",
+        #                 "callback_data": "/smartintercom_open_always"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_accept_call', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Открыть",
+        #                 "callback_data": "/smartintercom_accept_call"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Сброс вызова' %}\U0001F7E2{% else %}\U0001F534{% endif %} Сброс вызова",
+        #                 "callback_data": "/smartintercom_reset"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_sound', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Звук",
+        #                 "callback_data": "/smartintercom_sound"
+        #               },
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_mute', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Mute",
+        #                 "callback_data": "/smartintercom_mute"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U000021A9 Назад",
+        #                 "callback_data": "/hallway"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U0001F4DC Главное меню",
+        #                 "callback_data": "/menu"
+        #               }
+        #             ]
+        #           ]
+
+        # - conditions:
+        #     - condition: template
+        #       value_template: '{{ trigger.event.data.command == "/smartintercom_accept_call" }}'
+        #   sequence:
+        #     - service: switch.toggle
+        #       target:
+        #         entity_id: switch.smartintercom_accept_call
+        #     - delay:
+        #         milliseconds: 500
+        #     - service: telegram_bot.edit_replymarkup
+        #       data:
+        #         message_id: '{{ trigger.event.data.message.message_id }}'
+        #         chat_id: '{{ trigger.event.data.chat_id }}'
+        #         callback_query_id: '{{ trigger.event.data.id }}'
+        #         disable_notification: true
+        #         inline_keyboard: >
+        #           {% set mode = states("select.smartintercom_modes") %}
+        #           [
+        #             [
+        #               {
+        #                 "text": "{% if mode == 'Не активен' %}\U0001F7E2{% else %}\U0001F534{% endif %} Не активен",
+        #                 "callback_data": "/smartintercom_not_active"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Открывать всегда' %}\U0001F7E2{% else %}\U0001F534{% endif %} Открывать всегда",
+        #                 "callback_data": "/smartintercom_open_always"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_accept_call', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Открыть",
+        #                 "callback_data": "/smartintercom_accept_call"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Сброс вызова' %}\U0001F7E2{% else %}\U0001F534{% endif %} Сброс вызова",
+        #                 "callback_data": "/smartintercom_reset"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_sound', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Звук",
+        #                 "callback_data": "/smartintercom_sound"
+        #               },
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_mute', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Mute",
+        #                 "callback_data": "/smartintercom_mute"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U000021A9 Назад",
+        #                 "callback_data": "/hallway"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U0001F4DC Главное меню",
+        #                 "callback_data": "/menu"
+        #               }
+        #             ]
+        #           ]
+
+        # - conditions:
+        #     - condition: template
+        #       value_template: '{{ trigger.event.data.command == "/smartintercom_reset" }}'
+        #   sequence:
+        #     - service: select.select_option
+        #       target:
+        #         entity_id: select.smartintercom_modes
+        #       data:
+        #         option: Сброс вызова
+        #     - delay:
+        #         milliseconds: 500
+        #     - service: telegram_bot.edit_replymarkup
+        #       data:
+        #         message_id: '{{ trigger.event.data.message.message_id }}'
+        #         chat_id: '{{ trigger.event.data.chat_id }}'
+        #         callback_query_id: '{{ trigger.event.data.id }}'
+        #         disable_notification: true
+        #         inline_keyboard: >
+        #           {% set mode = states("select.smartintercom_modes") %}
+        #           [
+        #             [
+        #               {
+        #                 "text": "{% if mode == 'Не активен' %}\U0001F7E2{% else %}\U0001F534{% endif %} Не активен",
+        #                 "callback_data": "/smartintercom_not_active"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Открывать всегда' %}\U0001F7E2{% else %}\U0001F534{% endif %} Открывать всегда",
+        #                 "callback_data": "/smartintercom_open_always"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_accept_call', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Открыть",
+        #                 "callback_data": "/smartintercom_accept_call"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Сброс вызова' %}\U0001F7E2{% else %}\U0001F534{% endif %} Сброс вызова",
+        #                 "callback_data": "/smartintercom_reset"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_sound', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Звук",
+        #                 "callback_data": "/smartintercom_sound"
+        #               },
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_mute', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Mute",
+        #                 "callback_data": "/smartintercom_mute"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U000021A9 Назад",
+        #                 "callback_data": "/hallway"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U0001F4DC Главное меню",
+        #                 "callback_data": "/menu"
+        #               }
+        #             ]
+        #           ]
+
+        # - conditions:
+        #     - condition: template
+        #       value_template: '{{ trigger.event.data.command == "/smartintercom_sound" }}'
+        #   sequence:
+        #     - service: switch.toggle
+        #       target:
+        #         entity_id: switch.smartintercom_sound
+        #     - delay:
+        #         milliseconds: 500
+        #     - service: telegram_bot.edit_replymarkup
+        #       data:
+        #         message_id: '{{ trigger.event.data.message.message_id }}'
+        #         chat_id: '{{ trigger.event.data.chat_id }}'
+        #         callback_query_id: '{{ trigger.event.data.id }}'
+        #         disable_notification: true
+        #         inline_keyboard: >
+        #           {% set mode = states("select.smartintercom_modes") %}
+        #           [
+        #             [
+        #               {
+        #                 "text": "{% if mode == 'Не активен' %}\U0001F7E2{% else %}\U0001F534{% endif %} Не активен",
+        #                 "callback_data": "/smartintercom_not_active"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Открывать всегда' %}\U0001F7E2{% else %}\U0001F534{% endif %} Открывать всегда",
+        #                 "callback_data": "/smartintercom_open_always"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_accept_call', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Открыть",
+        #                 "callback_data": "/smartintercom_accept_call"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Сброс вызова' %}\U0001F7E2{% else %}\U0001F534{% endif %} Сброс вызова",
+        #                 "callback_data": "/smartintercom_reset"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_sound', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Звук",
+        #                 "callback_data": "/smartintercom_sound"
+        #               },
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_mute', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Mute",
+        #                 "callback_data": "/smartintercom_mute"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U000021A9 Назад",
+        #                 "callback_data": "/hallway"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U0001F4DC Главное меню",
+        #                 "callback_data": "/menu"
+        #               }
+        #             ]
+        #           ]
+
+        # - conditions:
+        #     - condition: template
+        #       value_template: '{{ trigger.event.data.command == "/smartintercom_mute" }}'
+        #   sequence:
+        #     - service: switch.toggle
+        #       target:
+        #         entity_id: switch.smartintercom_mute
+        #     - delay:
+        #         milliseconds: 500
+        #     - service: telegram_bot.edit_replymarkup
+        #       data:
+        #         message_id: '{{ trigger.event.data.message.message_id }}'
+        #         chat_id: '{{ trigger.event.data.chat_id }}'
+        #         callback_query_id: '{{ trigger.event.data.id }}'
+        #         disable_notification: true
+        #         inline_keyboard: >
+        #           {% set mode = states("select.smartintercom_modes") %}
+        #           [
+        #             [
+        #               {
+        #                 "text": "{% if mode == 'Не активен' %}\U0001F7E2{% else %}\U0001F534{% endif %} Не активен",
+        #                 "callback_data": "/smartintercom_not_active"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Открывать всегда' %}\U0001F7E2{% else %}\U0001F534{% endif %} Открывать всегда",
+        #                 "callback_data": "/smartintercom_open_always"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_accept_call', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Открыть",
+        #                 "callback_data": "/smartintercom_accept_call"
+        #               },
+        #               {
+        #                 "text": "{% if mode == 'Сброс вызова' %}\U0001F7E2{% else %}\U0001F534{% endif %} Сброс вызова",
+        #                 "callback_data": "/smartintercom_reset"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_sound', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Звук",
+        #                 "callback_data": "/smartintercom_sound"
+        #               },
+        #               {
+        #                 "text": "{% if is_state('switch.smartintercom_mute', 'on') %}\U0001F7E2{% else %}\U0001F534{% endif %} Mute",
+        #                 "callback_data": "/smartintercom_mute"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U000021A9 Назад",
+        #                 "callback_data": "/hallway"
+        #               }
+        #             ],
+        #             [
+        #               {
+        #                 "text": "\U0001F4DC Главное меню",
+        #                 "callback_data": "/menu"
+        #               }
+        #             ]
+        #           ]

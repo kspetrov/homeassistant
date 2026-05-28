@@ -1,0 +1,10 @@
+.storage/
+.vscode/
+.cahe/
+.cloud/
+custom_components/
+tts/
+.HA_VERSION
+.ha_run.lock
+home-assistant*
+secrets.yaml

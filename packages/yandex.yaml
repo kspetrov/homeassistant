@@ -1,0 +1,136 @@
+# Config for sensors to yandex
+yandex_smart_home:
+  filter:
+    include_entities:
+      - media_player.android_tv_main
+      - switch.kormushka_child_lock
+      - script.kormushka_feed
+      - vacuum.roborock_vacuum_cleaner
+      - humidifier.smartmi_humidifier
+      - switch.smartmi_humidifier_child_lock
+      - switch.smartmi_humidifier_buzzer
+      - binary_sensor.smartintercom_line_detect
+      - binary_sensor.smartintercom_state
+      - light.corridor
+      - light.bathroom
+      - light.toilet
+      - light.hall_gang_all
+      - light.hall_power_socket
+      - light.kitchen
+      - light.kitchen_backlight
+      - light.kitchen_power_socket
+      - light.small_corridor
+      - light.cabinet
+      - light.bedroom
+      - light.children_room
+      - script.all_lights_off
+  entity_config:
+    media_player.android_tv_main:
+      name: Телевизор
+      room: Гостиная
+    switch.kormushka_child_lock:
+      name: Кормушка защита
+      room: Кухня
+    script.kormushka_feed:
+      name: Кормушка
+      room: Кухня
+    vacuum.roborock_vacuum_cleaner:
+      name: Пылесос
+      room: Кабинет
+    humidifier.smartmi_humidifier:
+      name: Увлажнитель
+      room: Детская
+      properties:
+        - type: temperature
+          entity: sensor.smartmi_humidifier_temperature
+        - type: water_level
+          entity: sensor.smartmi_humidifier_water_level
+    switch.smartmi_humidifier_child_lock:
+      name: Увлажнитель защита
+      room: Детская
+    switch.smartmi_humidifier_buzzer:
+      name: Увлажнитель звук
+      room: Детская
+    binary_sensor.smartintercom_line_detect:
+      name: Звонок домофон
+      room: Прихожая
+    binary_sensor.smartintercom_state:
+      name: Домофон
+      room: Прихожая
+      type: devices.types.openable
+      modes:
+        program:
+          normal: [normal]
+          quiet: [quiet]
+          auto: [auto]
+      custom_modes:
+        program:
+          state_entity_id: sensor.smartintercom_modes
+          set_mode:
+            service: script.smartintercom_mode_set
+            data:
+              mode: '{{ mode }}'
+      custom_toggles:
+        controls_locked:
+          state_entity_id: sensor.smartintercom_accept_call_invert
+          turn_on:
+            service: switch.turn_off
+            entity_id: switch.smartintercom_accept_call
+          turn_off:
+            service: switch.turn_on
+            entity_id: switch.smartintercom_accept_call
+        backlight:
+          state_entity_id: switch.smartintercom_led
+          turn_on:
+            service: switch.turn_on
+            entity_id: switch.smartintercom_led
+          turn_off:
+            service: switch.turn_off
+            entity_id: switch.smartintercom_led
+        mute:
+          state_entity_id: sensor.smartintercom_sound_invert
+          turn_on:
+            service: switch.turn_off
+            entity_id: switch.smartintercom_sound
+          turn_off:
+            service: switch.turn_on
+            entity_id: switch.smartintercom_sound
+    light.corridor:
+      name: Свет в коридоре
+      room: Дом
+    light.bathroom:
+      name: Свет в ванной
+      room: Дом
+    light.toilet:
+      name: Свет в туалете
+      room: Дом
+    light.hall_gang_all:
+      name: Свет в гостиной
+      room: Гостиная
+    light.hall_power_socket:
+      name: Розетка в гостиной
+      room: Гостиная
+    light.kitchen:
+      name: Свет на кухне
+      room: Кухня
+    light.kitchen_backlight:
+      name: Подсветка на кухне
+      room: Кухня
+    light.kitchen_power_socket:
+      name: Розетка на кухне
+      room: Кухня
+    light.small_corridor:
+      name: Свет в маленьком коридоре
+      room: Дом
+    light.cabinet:
+      name: Свет в кабинете
+      room: Дом
+    light.bedroom:
+      name: Свет в спальне
+      room: Дом
+    light.children_room:
+      name: Свет в детской
+      room: Детская
+    script.all_lights_off:
+      name: Свет везде
+      room: Дом

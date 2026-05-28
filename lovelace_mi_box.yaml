@@ -1,0 +1,99 @@
+# ui-lovelace.yaml
+views:
+- title:  Remote control
+  cards:
+    - type: vertical-stack
+      title: Remote control
+      cards: 
+      - type: horizontal-stack
+        cards:    
+          - type: button 
+            entity: script.box_power
+            name: ' '
+            icon: mdi:power
+            tap_action:
+              action: toggle
+          - type: button
+          - type: button 
+            entity: script.box_sleep
+            name: ' '
+            icon: mdi:sleep
+            tap_action:
+              action: toggle
+          - type: button 
+            entity: script.box_menu
+            name: ' '
+            icon: mdi:menu
+            tap_action:
+              action: toggle
+          - type: button 
+            entity: script.box_home
+            name: ' '
+            icon: mdi:home
+            tap_action:
+              action: toggle
+      - type: horizontal-stack
+        cards:
+          - type: button
+          - type: button
+          - type: button 
+            entity: script.box_up
+            name: ' '            
+            icon: mdi:arrow-up
+            tap_action:            
+              action: toggle             
+          - type: button             
+          - type: button             
+      - type: horizontal-stack
+        cards:
+          - type: button 
+            entity: script.box_mute
+            name: ' '            
+            icon: mdi:volume-off
+            tap_action:
+              action: toggle             
+          - type: button 
+            entity: script.box_left
+            name: ' '            
+            icon: mdi:arrow-left
+            tap_action:
+              action: toggle            
+          - type: button 
+            entity: script.box_center
+            name: ' '            
+            icon: mdi:pokeball
+            tap_action:            
+              action: toggle              
+          - type: button 
+            entity: script.box_right
+            name: ' '            
+            icon: mdi:arrow-right
+            tap_action:
+              action: toggle                
+          - type: button 
+            entity: script.kinopoisk
+            name: 'Кинопоиск'
+            icon: mdi:video-minus             
+            tap_action:
+              action: toggle              
+      - type: horizontal-stack
+        cards:            
+          - type: button
+          - type: button           
+          - type: button 
+            entity: script.box_down
+            name: ' '            
+            icon: mdi:arrow-down
+            tap_action:
+              action: toggle              
+          - type: button             
+          - type: button 
+            entity: script.box_back
+            name: ' '            
+            icon: mdi:backspace
+            tap_action:
+              action: toggle              
+      - type: horizontal-stack
+        cards:  
+           - type: media-control
+             entity: media_player.android_tv_main 

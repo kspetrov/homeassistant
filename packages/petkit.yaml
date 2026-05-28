@@ -1,0 +1,5 @@
+# Configure petkit https://github.com/hasscc/petkit
+# petkit:
+#   username: !secret petkit_login
+#   password: !secret petkit_password
+#   api_base: !secret petkit_api_url

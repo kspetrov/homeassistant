@@ -1,0 +1,25 @@
+- alias: Turn off all lights when out
+  description: ''
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.aqara_hub_m2
+      to: armed_away
+  condition: []
+  action:
+    - service: script.all_lights_off
+      data: {}
+  mode: single
+- alias: Turn on lights when come home
+  description: ''
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.aqara_hub_m2
+      to: armed_night
+  condition: []
+  action:
+    - service: light.turn_on
+      target:
+        entity_id:
+        - light.toilet
+        - light.bathroom
+  mode: single

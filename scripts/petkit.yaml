@@ -1,0 +1,8 @@
+kormushka_feed:
+  alias: Feed Pet
+  sequence:
+    - device_id: 851c828941315860eb0f999bc8341317
+      domain: select
+      entity_id: select.kormushka_manual_feed
+      type: select_option
+      option: 1/20th Cup (5g)

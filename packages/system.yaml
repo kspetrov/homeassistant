@@ -1,0 +1,12 @@
+# Add systems sensors
+# sensor:
+#   - platform: systemmonitor
+#     resources:
+#       - type: disk_use_percent
+#         arg: /
+#       - type: memory_use_percent
+#       - type: processor_temperature
+#       - type: ipv4_address
+#         arg: eth0
+#       - type: processor_use
+#       - type: last_boot
