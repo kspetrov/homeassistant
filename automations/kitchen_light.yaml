@@ -1,73 +1,73 @@
-# automations for light in kitchen when check motions
-- alias: Turn the light in kitchen on/off when motion
-  description: 'Turn off when no motion more than "X"'
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.motion_sensor_kitchen
-      from: "off"
-      to: "on"
-      id: motion_detected_kitchen
-    - platform: state
-      entity_id: binary_sensor.motion_sensor_hall
-      from: "off"
-      to: "on"
-      id: motion_detected_hall
-    - platform: state
-      entity_id: binary_sensor.motion_sensor_kitchen
-      from: "on"
-      to: "off"
-      for: !secret no_motion_in_hall_kitchen_time
-      id: no_motion_kitchen
-    - platform: state
-      entity_id: binary_sensor.motion_sensor_hall
-      from: "on"
-      to: "off"
-      for: !secret no_motion_in_hall_kitchen_time
-      id: no_motion_hall
-  condition:
-    #condition: template  # 'night' condition: from dusk to dawn, in typical locations
-    #value_template: "{{ state_attr('sun.sun', 'elevation') < 9 }}"
-    condition: time
-    after: "23:00:00"
-    before: "08:00:00"
-  action:
-    - choose:
-      - conditions:
-        - condition: and
-          conditions:
-            - condition: or
-              conditions:
-                - condition: trigger
-                  id: motion_detected_kitchen
-                - condition: trigger
-                  id: motion_detected_hall
-            - condition: state
-              entity_id: light.kitchen_backlight
-              state: "off"
-        sequence:
-          - service: light.turn_on
-            target:
-              entity_id: light.kitchen_backlight
-      - conditions:
-        - condition: and
-          conditions:
-            - condition: or
-              conditions:
-                - condition: trigger
-                  id: no_motion_kitchen
-                - condition: trigger
-                  id: no_motion_hall
-            - condition: state
-              entity_id: binary_sensor.motion_sensor_kitchen
-              state: "off"
-              for: !secret no_motion_in_hall_kitchen_time
-            - condition: state
-              entity_id: binary_sensor.motion_sensor_hall
-              state: "off"
-              for: !secret no_motion_in_hall_kitchen_time
-        sequence:
-          - service: light.turn_off
-            target:
-              entity_id: light.kitchen_backlight
-      default: []
-  mode: restart
+# # automations for light in kitchen when check motions
+# - alias: Turn the light in kitchen on/off when motion
+#   description: 'Turn off when no motion more than "X"'
+#   trigger:
+#     - platform: state
+#       entity_id: binary_sensor.motion_sensor_kitchen
+#       from: "off"
+#       to: "on"
+#       id: motion_detected_kitchen
+#     - platform: state
+#       entity_id: binary_sensor.motion_sensor_hall
+#       from: "off"
+#       to: "on"
+#       id: motion_detected_hall
+#     - platform: state
+#       entity_id: binary_sensor.motion_sensor_kitchen
+#       from: "on"
+#       to: "off"
+#       for: !secret no_motion_in_hall_kitchen_time
+#       id: no_motion_kitchen
+#     - platform: state
+#       entity_id: binary_sensor.motion_sensor_hall
+#       from: "on"
+#       to: "off"
+#       for: !secret no_motion_in_hall_kitchen_time
+#       id: no_motion_hall
+#   condition:
+#     #condition: template  # 'night' condition: from dusk to dawn, in typical locations
+#     #value_template: "{{ state_attr('sun.sun', 'elevation') < 9 }}"
+#     condition: time
+#     after: "23:00:00"
+#     before: "08:00:00"
+#   action:
+#     - choose:
+#       - conditions:
+#         - condition: and
+#           conditions:
+#             - condition: or
+#               conditions:
+#                 - condition: trigger
+#                   id: motion_detected_kitchen
+#                 - condition: trigger
+#                   id: motion_detected_hall
+#             - condition: state
+#               entity_id: light.kitchen_backlight
+#               state: "off"
+#         sequence:
+#           - service: light.turn_on
+#             target:
+#               entity_id: light.kitchen_backlight
+#       - conditions:
+#         - condition: and
+#           conditions:
+#             - condition: or
+#               conditions:
+#                 - condition: trigger
+#                   id: no_motion_kitchen
+#                 - condition: trigger
+#                   id: no_motion_hall
+#             - condition: state
+#               entity_id: binary_sensor.motion_sensor_kitchen
+#               state: "off"
+#               for: !secret no_motion_in_hall_kitchen_time
+#             - condition: state
+#               entity_id: binary_sensor.motion_sensor_hall
+#               state: "off"
+#               for: !secret no_motion_in_hall_kitchen_time
+#         sequence:
+#           - service: light.turn_off
+#             target:
+#               entity_id: light.kitchen_backlight
+#       default: []
+#   mode: restart

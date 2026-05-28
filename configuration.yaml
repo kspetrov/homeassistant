@@ -1,67 +1,55 @@
 # Configure a default setup of Home Assistant (frontend, api, etc)
-#default_config:
+default_config:
 
-# Базовые системные интеграции
-config:
-frontend:
-hardware:
-logger:
-system_health:
-homeassistant_alerts:
+# # Базовые системные интеграции
+# config:
+# frontend:
+# hardware:
+# logger:
+# system_health:
+# homeassistant_alerts:
 
-# Интеграции для автоматизации и помощника
-conversation:
-assist_pipeline:
-intent:
+# # Интеграции для автоматизации и помощника
+# conversation:
+# assist_pipeline:
+# intent:
 
-# Важные сетевые службы (Оставьте для стабильной работы)
-dhcp:
-ssdp:
-zeroconf:
-usb:
-bluetooth:
+# # Важные сетевые службы (Оставьте для стабильной работы)
+# dhcp:
+# ssdp:
+# zeroconf:
+# usb:
+# bluetooth:
 
-# Пользовательский интерфейс и данные
-history:
-logbook:
-map:
-energy:
-media_source:
+# # Пользовательский интерфейс и данные
+# history:
+# logbook:
+# map:
+# energy:
+# media_source:
 
-# Вспомогательные сущности
-input_button:
-input_datetime:
-input_number:
-input_select:
-input_text:
-person:
-schedule:
-timer:
-zone:
-tag:
-counter:
+# # Вспомогательные сущности
+# input_button:
+# input_datetime:
+# input_number:
+# input_select:
+# input_text:
+# person:
+# schedule:
+# timer:
+# zone:
+# tag:
+# counter:
 
-# Если вам НЕ нужен My Home Assistant или Cloud, просто НЕ добавляйте их сюда!
-my:
-# cloud:
+# # Если вам НЕ нужен My Home Assistant или Cloud, просто НЕ добавляйте их сюда!
+# my:
+# mobile_app:
+# # cloud:
 
 
 recorder:
   purge_keep_days: 7
   auto_purge: true
-
-  include:
-    domains:
-      - input_boolean
-      
-      # Датчики только по маске (температура, влажность)
-      # light полностью исключен из истории
-    
-    entity_globs:
-      - sensor.*_temperature*
-      - sensor.*_humidity*
-      - binary_sensor.*_motion*
-      - binary_sensor.*_contact*
 
 homeassistant:
   packages: !include_dir_named packages

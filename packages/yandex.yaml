@@ -2,9 +2,9 @@
 yandex_smart_home:
   filter:
     include_entities:
-      - media_player.android_tv_main
-      - switch.kormushka_child_lock
-      - script.kormushka_feed
+      # - media_player.android_tv_main
+      # - switch.kormushka_child_lock
+      - script.kormushka_feed 
       - vacuum.roborock_vacuum_cleaner
       - humidifier.smartmi_humidifier
       - switch.smartmi_humidifier_child_lock
@@ -25,12 +25,12 @@ yandex_smart_home:
       - light.children_room
       - script.all_lights_off
   entity_config:
-    media_player.android_tv_main:
-      name: Телевизор
-      room: Гостиная
-    switch.kormushka_child_lock:
-      name: Кормушка защита
-      room: Кухня
+    # media_player.android_tv_main:
+    #   name: Телевизор
+    #   room: Гостиная
+    # switch.kormushka_child_lock:
+    #   name: Кормушка защита
+    #   room: Кухня
     script.kormushka_feed:
       name: Кормушка
       room: Кухня

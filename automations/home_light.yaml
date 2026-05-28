@@ -2,8 +2,8 @@
   description: ''
   trigger:
     - platform: state
-      entity_id: alarm_control_panel.aqara_hub_m2
-      to: armed_away
+      entity_id: binary_sensor.door_lock_away_mode_enabled_apply
+      to: "on"
   condition: []
   action:
     - service: script.all_lights_off
@@ -13,8 +13,8 @@
   description: ''
   trigger:
     - platform: state
-      entity_id: alarm_control_panel.aqara_hub_m2
-      to: armed_night
+      entity_id: binary_sensor.door_lock_opened_from_outside_apply
+      to: "on"
   condition: []
   action:
     - service: light.turn_on

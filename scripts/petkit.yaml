@@ -1,7 +1,7 @@
 kormushka_feed:
   alias: Feed Pet
   sequence:
-    - device_id: 851c828941315860eb0f999bc8341317
+    - device_id: a187acf2f63eb11ed58e9791ab6f7ef2
       domain: select
       entity_id: select.kormushka_manual_feed
       type: select_option
