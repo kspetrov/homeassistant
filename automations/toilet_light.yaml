@@ -3,11 +3,11 @@
   description: 'Turn off when no motion more than "X" and open toilet door more than "Y"'
   trigger:
     - platform: state
-      entity_id: binary_sensor.motion_corridor_detected_motion # detected потом сразу убирается на clear
+      entity_id: binary_sensor.corridor_motion_detected_motion
       to: "on"
       id: motion_detected
     - platform: state
-      entity_id: binary_sensor.motion_corridor_detected_motion
+      entity_id: binary_sensor.corridor_motion_detected_motion
       from: "on"
       to: "off"
       for: !secret no_motion_in_corridor_time
