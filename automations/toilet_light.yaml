@@ -7,7 +7,7 @@
       to: "on"
       id: motion_detected
     - platform: state
-      entity_id: binary_sensor.corridor_motion_detected_motion
+      entity_id: binary_sensor.motion_sensor_corridor_motion
       from: "on"
       to: "off"
       for: !secret no_motion_in_corridor_time
