@@ -1,73 +1,73 @@
-- alias: Domofon on call interaction management 
-  mode: restart
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.smartintercom_line_detect
-      to: 'on'
-  condition:
-    - condition: state
-      entity_id: switch.smartintercom_accept_call
-      state: 'off'
-    - condition: state
-      entity_id: switch.smartintercom_reject_call
-      state: 'off'
-    - condition: state
-      entity_id: select.smartintercom_modes
-      state: 'Не активен'
-  action:
-    - service: telegram_bot.send_message
-      data:
-        message: "📞 Кто-то звонит в домофон. Что сделать?"
-        inline_keyboard:
-          - "✅ Открыть дверь:/open_door, ❌ Отклонить:/reject_call"
-      response_variable: sent_message
-    - wait_for_trigger:
-        - platform: event
-          event_type: telegram_callback
-          event_data:
-            message:
-              message_id: '{{ sent_message.chats[0].message_id }}'
-            chat_id: '{{ sent_message.chats[0].chat_id }}'
-      timeout: 60
-      continue_on_timeout: true
-    - choose:
-        - conditions:
-            - condition: template
-              value_template: "{{ wait.trigger is not none }}"
-            - condition: state
-              entity_id: binary_sensor.smartintercom_line_detect
-              state: 'on'
-          sequence:
-            - choose:
-                - conditions:
-                    - "{{ wait.trigger.event.data.data == '/open_door' }}"
-                  sequence:
-                    - service: switch.turn_on
-                      target:
-                        entity_id: switch.smartintercom_accept_call
-                - conditions:
-                    - "{{ wait.trigger.event.data.data == '/reject_call' }}"
-                  sequence:
-                    - service: switch.turn_on
-                      target:
-                        entity_id: switch.smartintercom_reject_call
-            - service: telegram_bot.answer_callback_query
-              data:
-                callback_query_id: '{{ wait.trigger.event.data.id }}'
-                message: "✅ Готово!"
-        - conditions:
-            - condition: template
-              value_template: "{{ wait.trigger is not none }}"
-          sequence:
-            - service: telegram_bot.answer_callback_query
-              data:
-                callback_query_id: '{{ wait.trigger.event.data.id }}'
-                message: "Уже не актуально. Звонок завершен."
-                show_alert: true
-    - service: telegram_bot.delete_message
-      data:
-        chat_id: '{{ sent_message.chats[0].chat_id }}'
-        message_id: '{{ sent_message.chats[0].message_id }}'
+# - alias: Domofon on call interaction management 
+#   mode: restart
+#   trigger:
+#     - platform: state
+#       entity_id: binary_sensor.smartintercom_line_detect
+#       to: 'on'
+#   condition:
+#     - condition: state
+#       entity_id: switch.smartintercom_accept_call
+#       state: 'off'
+#     - condition: state
+#       entity_id: switch.smartintercom_reject_call
+#       state: 'off'
+#     - condition: state
+#       entity_id: select.smartintercom_modes
+#       state: 'Не активен'
+#   action:
+#     - service: telegram_bot.send_message
+#       data:
+#         message: "📞 Кто-то звонит в домофон. Что сделать?"
+#         inline_keyboard:
+#           - "✅ Открыть дверь:/open_door, ❌ Отклонить:/reject_call"
+#       response_variable: sent_message
+#     - wait_for_trigger:
+#         - platform: event
+#           event_type: telegram_callback
+#           event_data:
+#             message:
+#               message_id: '{{ sent_message.chats[0].message_id }}'
+#             chat_id: '{{ sent_message.chats[0].chat_id }}'
+#       timeout: 60
+#       continue_on_timeout: true
+#     - choose:
+#         - conditions:
+#             - condition: template
+#               value_template: "{{ wait.trigger is not none }}"
+#             - condition: state
+#               entity_id: binary_sensor.smartintercom_line_detect
+#               state: 'on'
+#           sequence:
+#             - choose:
+#                 - conditions:
+#                     - "{{ wait.trigger.event.data.data == '/open_door' }}"
+#                   sequence:
+#                     - service: switch.turn_on
+#                       target:
+#                         entity_id: switch.smartintercom_accept_call
+#                 - conditions:
+#                     - "{{ wait.trigger.event.data.data == '/reject_call' }}"
+#                   sequence:
+#                     - service: switch.turn_on
+#                       target:
+#                         entity_id: switch.smartintercom_reject_call
+#             - service: telegram_bot.answer_callback_query
+#               data:
+#                 callback_query_id: '{{ wait.trigger.event.data.id }}'
+#                 message: "✅ Готово!"
+#         - conditions:
+#             - condition: template
+#               value_template: "{{ wait.trigger is not none }}"
+#           sequence:
+#             - service: telegram_bot.answer_callback_query
+#               data:
+#                 callback_query_id: '{{ wait.trigger.event.data.id }}'
+#                 message: "Уже не актуально. Звонок завершен."
+#                 show_alert: true
+#     - service: telegram_bot.delete_message
+#       data:
+#         chat_id: '{{ sent_message.chats[0].chat_id }}'
+#         message_id: '{{ sent_message.chats[0].message_id }}'
 
 # - alias: Telegram (Domofon - menu)
 #   mode: restart

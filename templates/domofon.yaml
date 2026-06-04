@@ -2,7 +2,7 @@
   - name: "smartintercom state"
     device_class: "door"
     state: >
-      {% if is_state("switch.smartintercom_accept_call", "on") or is_state("select.smartintercom_modes", "Открывать всегда") %}
+      {% if is_state("switch.corridor_smartintercom_otkryt_dver", "on") or is_state("select.corridor_smartintercom_postoiannyi_rezhim_raboty", "Открывать всегда") %}
         on
       {% else %}
         off
@@ -11,7 +11,7 @@
   - name: "smartintercom call"
     device_class: "motion"
     state: >
-      {% if is_state("binary_sensor.smartintercom_line_detect", "on") %}
+      {% if is_state("binary_sensor.corridor_smartintercom_detektor_vyzova", "on") %}
         on
       {% else %}
         off
@@ -20,23 +20,23 @@
 - sensor:
   - name: "smartintercom modes"
     state: >
-      {% if is_state('select.smartintercom_modes', 'Не активен') %}
+      {% if is_state('select.corridor_smartintercom_postoiannyi_rezhim_raboty', 'Не активен') %}
         normal
-      {% elif is_state('select.smartintercom_modes', 'Открывать всегда') %}
+      {% elif is_state('select.corridor_smartintercom_postoiannyi_rezhim_raboty', 'Открывать всегда') %}
         auto
       {% else %}
         quiet
       {% endif %}
   - name: "smartintercom sound invert"
     state: >
-      {% if is_state("switch.smartintercom_sound", "on") %}
+      {% if is_state("switch.corridor_smartintercom_bezzvuchnyi_rezhim", "on") %}
         off
       {% else %}
         on
       {% endif %}
   - name: "smartintercom accept call invert"
     state: >
-      {% if is_state("switch.smartintercom_accept_call", "on") %}
+      {% if is_state("switch.corridor_smartintercom_otkryt_dver", "on") %}
         off
       {% else %}
         on
