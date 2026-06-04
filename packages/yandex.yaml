@@ -91,10 +91,10 @@ yandex_smart_home:
           state_entity_id: sensor.smartintercom_sound_invert
           turn_on:
             service: switch.turn_off
-            entity_id: switch.corridor_smartintercom_otkliuchit_trubku
+            entity_id: switch.corridor_smartintercom_bezzvuchnyi_rezhim
           turn_off:
             service: switch.turn_on
-            entity_id: switch.corridor_smartintercom_otkliuchit_trubku
+            entity_id: switch.corridor_smartintercom_bezzvuchnyi_rezhim
     light.corridor:
       name: Свет в коридоре
       room: Дом
