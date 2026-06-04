@@ -9,7 +9,7 @@ yandex_smart_home:
       - humidifier.smartmi_humidifier
       - switch.smartmi_humidifier_child_lock
       - switch.smartmi_humidifier_buzzer
-      - binary_sensor.corridor_smartintercom_detektor_vyzova
+      - binary_sensor.smartintercom_call
       - binary_sensor.smartintercom_state
       - light.corridor
       - light.bathroom
@@ -51,7 +51,7 @@ yandex_smart_home:
     switch.smartmi_humidifier_buzzer:
       name: Увлажнитель звук
       room: Детская
-    binary_sensor.corridor_smartintercom_detektor_vyzova:
+    binary_sensor.smartintercom_call:
       name: Звонок домофон
       room: Прихожая
     binary_sensor.smartintercom_state:
